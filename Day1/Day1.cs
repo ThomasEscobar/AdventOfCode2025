@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Serilog.Core;
 using AdventOfCode.ToolBox;
+using Serilog;
 
 namespace AdventOfCode.Day1;
 
@@ -42,17 +43,58 @@ public class Solver
 
     public void SolvePart1()
     {
-        logger.Information("PART 1 - Calculting sum of distances between sorted lists");
+        logger.Information("PART 1 - Counting the number of times the dial rotates to exactly zero");
 
+        var position = 50;
+        var zeroCount = 0;
 
-        logger.Information($"The total sum of distances is: ");
+        foreach (var line in input)
+        {
+            var sign = line.Contains('R') ? 1 : -1;
+            var rotation = Int32.Parse(line[1..]);
+
+            // Calculate new position
+            position = (position + sign * rotation + 100) % 100;
+            if (position == 0) zeroCount++;
+
+            logger.Debug($"Position = {position}, zeroCount = {zeroCount}");
+        }
+
+        logger.Information($"The total count of zeros is: {zeroCount}");
     }
 
     public void SolvePart2()
     {
-        logger.Information("PART 2 - Calculating 'similarity score' between the two lists");
+        logger.Information("PART 2 - Counting the number of times the dial rotates through zero");
 
+        var position = 50;
+        var goingThroughZero = 0;
 
-        logger.Information($"The total similarity score is: ");
+        foreach (var line in input)
+        {
+            var sign = line.Contains('R') ? 1 : -1;
+            var rotation = Int32.Parse(line[1..]);
+
+            // Process click by click to count each time going through 0
+            var previousPosition = position;
+            for (var click = 0; click < rotation; click++)
+            {
+                position += sign;
+                if (position == 100)
+                {
+                    position = 0;
+                }
+                else if (position == -1)
+                {
+                    position = 99;
+                }
+
+                if (position == 0) goingThroughZero++;
+            }
+
+            logger.Debug($"{previousPosition} -> {position}; goingThroughZero={goingThroughZero}");
+        }
+
+        logger.Information($"The total count of zeros is: {goingThroughZero}");
     }
 }
